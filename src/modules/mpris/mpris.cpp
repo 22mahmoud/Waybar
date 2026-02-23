@@ -117,7 +117,7 @@ Mpris::Mpris(const std::string& id, const Json::Value& config)
   }
 
   GError* error = nullptr;
-  waybar::util::ScopeGuard error_deleter([error]() {
+  waybar::util::ScopeGuard error_deleter([&error]() {
     if (error) {
       g_error_free(error);
     }
@@ -478,7 +478,7 @@ auto Mpris::getPlayerInfo() -> std::optional<PlayerInfo> {
   }
 
   GError* error = nullptr;
-  waybar::util::ScopeGuard error_deleter([error]() {
+  waybar::util::ScopeGuard error_deleter([&error]() {
     if (error) {
       g_error_free(error);
     }
@@ -543,6 +543,10 @@ auto Mpris::getPlayerInfo() -> std::optional<PlayerInfo> {
   g_object_get(last_active_player_, "status", &player_status, "playback-status",
                &player_playback_status, NULL);
 
+  if (!player_status) {
+    spdlog::error("mpris: failed to get player status");
+    return std::nullopt;
+  }
   // make status lowercase
   player_status[0] = std::tolower(player_status[0]);
 

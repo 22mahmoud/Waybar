@@ -59,10 +59,12 @@ UPower::UPower(const std::string& id, const Json::Value& config)
                              sigc::mem_fun(*this, &UPower::getConn_cb));
 
   // Make UPower client
-  GError** gErr = NULL;
-  upClient_ = up_client_new_full(NULL, gErr);
-  if (upClient_ == NULL)
-    spdlog::error("Upower. UPower client connection error. {}", (*gErr)->message);
+  GError* gErr = NULL;
+  upClient_ = up_client_new_full(NULL, &gErr);
+  if (upClient_ == NULL) {
+    spdlog::error("Upower. UPower client connection error. {}", gErr ? gErr->message : "unknown error");
+    if (gErr) g_error_free(gErr);
+  }
 
   // Subscribe UPower events
   g_signal_connect(upClient_, "device-added", G_CALLBACK(deviceAdded_cb), this);

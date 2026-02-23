@@ -59,6 +59,7 @@ inline int close(FILE* fp, pid_t pid) {
       spdlog::debug("Cmd continued");
     } else if (ret == -1) {
       spdlog::debug("waitpid failed: {}", strerror(errno));
+      break;
     } else {
       break;
     }

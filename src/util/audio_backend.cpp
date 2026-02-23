@@ -237,9 +237,10 @@ void AudioBackend::sourceInfoCb(pa_context* /*context*/, const pa_source_info* i
  */
 void AudioBackend::serverInfoCb(pa_context* context, const pa_server_info* i, void* data) {
   auto* backend = static_cast<AudioBackend*>(data);
-  backend->current_sink_name_ = i->default_sink_name;
-  backend->default_sink_name = i->default_sink_name;
-  backend->default_source_name_ = i->default_source_name;
+  if (i == nullptr) return;
+  backend->current_sink_name_ = i->default_sink_name ? i->default_sink_name : "";
+  backend->default_sink_name = i->default_sink_name ? i->default_sink_name : "";
+  backend->default_source_name_ = i->default_source_name ? i->default_source_name : "";
 
   pa_context_get_sink_info_list(context, sinkInfoCb, data);
   pa_context_get_source_info_list(context, sourceInfoCb, data);
@@ -355,6 +356,7 @@ void AudioBackend::changeVolume(ChangeType change_type, double step, uint16_t ma
 }
 
 void AudioBackend::toggleSinkMute() {
+  if (context_ == nullptr || pa_context_get_state(context_) != PA_CONTEXT_READY) return;
   muted_ = !muted_;
   pa_threaded_mainloop_lock(mainloop_);
   pa_context_set_sink_mute_by_index(context_, sink_idx_, static_cast<int>(muted_), nullptr,
@@ -363,6 +365,7 @@ void AudioBackend::toggleSinkMute() {
 }
 
 void AudioBackend::toggleSinkMute(bool mute) {
+  if (context_ == nullptr || pa_context_get_state(context_) != PA_CONTEXT_READY) return;
   muted_ = mute;
   pa_threaded_mainloop_lock(mainloop_);
   pa_context_set_sink_mute_by_index(context_, sink_idx_, static_cast<int>(muted_), nullptr,
@@ -371,7 +374,8 @@ void AudioBackend::toggleSinkMute(bool mute) {
 }
 
 void AudioBackend::toggleSourceMute() {
-  source_muted_ = !muted_;
+  if (context_ == nullptr || pa_context_get_state(context_) != PA_CONTEXT_READY) return;
+  source_muted_ = !source_muted_;
   pa_threaded_mainloop_lock(mainloop_);
   pa_context_set_source_mute_by_index(context_, source_idx_, static_cast<int>(source_muted_),
                                       nullptr, nullptr);
@@ -379,6 +383,7 @@ void AudioBackend::toggleSourceMute() {
 }
 
 void AudioBackend::toggleSourceMute(bool mute) {
+  if (context_ == nullptr || pa_context_get_state(context_) != PA_CONTEXT_READY) return;
   source_muted_ = mute;
   pa_threaded_mainloop_lock(mainloop_);
   pa_context_set_source_mute_by_index(context_, source_idx_, static_cast<int>(source_muted_),

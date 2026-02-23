@@ -365,13 +365,14 @@ Glib::RefPtr<Gdk::Pixbuf> Item::extractPixBuf(GVariant* variant) {
 
 void Item::updateImage() {
   auto pixbuf = getIconPixbuf();
+  if (!pixbuf) return;
   auto scaled_icon_size = getScaledIconSize();
 
   // If the loaded icon is not square, assume that the icon height should match the
   // requested icon size, but the width is allowed to be different. As such, if the
   // height of the image does not match the requested icon size, resize the icon such that
   // the aspect ratio is maintained, but the height matches the requested icon size.
-  if (pixbuf->get_height() != scaled_icon_size) {
+  if (pixbuf->get_height() > 0 && pixbuf->get_height() != scaled_icon_size) {
     int width = scaled_icon_size * pixbuf->get_width() / pixbuf->get_height();
     pixbuf = pixbuf->scale_simple(width, scaled_icon_size, Gdk::InterpType::INTERP_BILINEAR);
   }

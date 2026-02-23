@@ -89,7 +89,7 @@ struct Sock {
   }
 };
 
-class IPC {
+class IPC : public std::enable_shared_from_this<IPC> {
   static std::weak_ptr<IPC> instance;
   Json::CharReaderBuilder reader_builder;
   Json::StreamWriterBuilder writer_builder;
@@ -98,7 +98,7 @@ class IPC {
   State state;
   std::mutex state_mutex;
 
-  IPC() { start(); }
+  IPC() = default;
 
   static auto connect() -> Sock;
   auto receive(Sock& sock) -> Json::Value;

@@ -41,7 +41,7 @@ auto waybar::modules::Disk::update() -> void {
     fs_used - File system used space
   */
 
-  if (err != 0) {
+  if (err != 0 || stats.f_blocks == 0) {
     event_box_.hide();
     return;
   }

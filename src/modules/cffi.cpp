@@ -35,7 +35,7 @@ CFFI::CFFI(const std::string& name, const std::string& id, const Json::Value& co
       throw std::runtime_error{std::string{"Missing wbcffi_init function: "} + dlerror()};
     }
     hooks_.deinit = reinterpret_cast<DenitFn*>(dlsym(handle, "wbcffi_deinit"));
-    if (!hooks_.init) {
+    if (!hooks_.deinit) {
       throw std::runtime_error{std::string{"Missing wbcffi_deinit function: "} + dlerror()};
     }
     // Optional functions
